@@ -27,8 +27,9 @@ jobs:
       - name: 🛠️ Build Angular app
         run: npm run build -- --configuration production --base-href "/${{ github.event.repository.name }}/"
 
-      - name: 🚀 Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Angular Deploy gh-pages Actions
+        uses: AhsanAyaz/angular-deploy-gh-pages-actions@v1.4.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist/echocalypse-link-helper
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+        angular_project_dir: ./dist/echocalypse-link-helper
+
