@@ -1,16 +1,18 @@
-name: Deploy Angular to GitHub Pages
+name: Build and Deploy Angular to GitHub Pages
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger on pushes to the main branch
+
+permissions:
+  contents: write  # Needed for pushing to gh-pages
+  pages: write     # Needed for GitHub Pages
+  id-token: write  # Needed for Pages deployment
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write  # Required to push to gh-pages
 
     steps:
       - name: 📦 Checkout code
@@ -19,17 +21,30 @@ jobs:
       - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
 
       - name: 📥 Install dependencies
         run: npm ci
 
       - name: 🛠️ Build Angular app
-        run: npm run build -- --configuration production --base-href "/${{ github.event.repository.name }}/"
+        run: npm run build -- --configuration production --base-href "/echocalypse-link-helper/"
 
-      - name: Angular Deploy gh-pages Actions
-        uses: AhsanAyaz/angular-deploy-gh-pages-actions@v1.4.0
+      - name: 📤 Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        angular_project_dir: ./dist/echocalypse-link-helper
+          path: dist/echocalypse-link-helper  # Replace with actual project name from angular.json if different
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: ⚙️ Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
