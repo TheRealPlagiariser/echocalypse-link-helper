@@ -3,14 +3,17 @@ name: Deploy Angular to GitHub Pages
 on:
   push:
     branches:
-      - main  # Change this if your default branch is different
+      - main
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # Needed to push to gh-pages
+
     steps:
-      - name: ⬇️ Checkout repository
+      - name: 📦 Checkout code
         uses: actions/checkout@v4
 
       - name: ⚙️ Setup Node.js
@@ -18,14 +21,14 @@ jobs:
         with:
           node-version: '18'
 
-      - name: 📦 Install dependencies
+      - name: 📥 Install dependencies
         run: npm ci
 
-      - name: 🔨 Build Angular app
+      - name: 🛠️ Build Angular App
         run: npm run build -- --configuration production --base-href "/${{ github.event.repository.name }}/"
 
       - name: 🚀 Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          branch: gh-pages  # Deployment branch
-          folder: dist/echocalypse-link-helper # Replace with actual dist folder name
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist/<your-project-name>  # Replace this!
